@@ -62,7 +62,7 @@ def traitement_data_facture():
     text += analyses[-1]['text']
     phrases.append(text)  # Ajouter la dernière phrase compilée à `phrases`
 
-    print(phrases)
+    return phrases
 
 
 
@@ -72,9 +72,15 @@ def traitement_qrcode_facture():
     resultat =  recup_info_data_qrcode(url)
     print(resultat)
 
-traitement_qrcode_facture()
 
 
+
+def cate_phrases(): 
+    phrases = traitement_data_facture()
+    print(phrases)
+
+
+cate_phrases()
 
 """
     
