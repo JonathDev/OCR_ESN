@@ -32,3 +32,43 @@ CREATE TABLE api_usage_log (
     FOREIGN KEY (operation_id) REFERENCES operations_log (id)
 );
 """
+"""
+
+
+CREATE SCHEMA Billing;
+
+#-- Ensuite, créer les tables dans ce schéma
+#-- Notez l'ajout de 'facturation.' devant le nom de chaque table pour spécifier le schéma
+
+CREATE TABLE Billing.Customer (
+    cust_id INT PRIMARY KEY,
+    adresse_customer TEXT, 
+    name_customer TEXT,
+    cat VARCHAR(3)
+);
+
+CREATE TABLE facturation.Product (
+    productID INT PRIMARY KEY,
+    name_product TEXT,
+    unit_price INT
+);
+
+CREATE TABLE facturation.Invoice (
+    number_invoice VARCHAR(50) PRIMARY KEY,
+    date_invoice DATE,
+    cust_id INT,
+    invoice_link TEXT,
+    total_price INT,
+    FOREIGN KEY (cust_id) REFERENCES facturation.Customer(cust_id)
+);
+
+CREATE TABLE facturation.`Order` (
+    order_detail INT PRIMARY KEY,
+    number_invoice VARCHAR(50),
+    productID INT,
+    quantity INT,
+    FOREIGN KEY (number_invoice) REFERENCES facturation.Invoice(number_invoice),
+    FOREIGN KEY (productID) REFERENCES facturation.Product(productID)
+
+
+"""

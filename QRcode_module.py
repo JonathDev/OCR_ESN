@@ -47,5 +47,5 @@ def recup_info_data_qrcode(url='https://invoiceocrp3.azurewebsites.net/static/FA
         return {"statut": f"Une erreur inattendue est survenue: {e}", 'Statut Réponse': response.status_code if 'response' in locals() else None}
 
 
-test = recup_info_data_qrcode()
-print(test)
+#test = recup_info_data_qrcode()
+#print(test)

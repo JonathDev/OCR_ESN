@@ -51,5 +51,5 @@ def recup_data_feature(url="https://invoiceocrp3.azurewebsites.net/static/FAC_20
         return {'statut': 'Erreur', 'message_erreur': str(e), 'code_statut': None}
 
 # Exécution et affichage du résultat
-test = recup_data_feature()
-print(test)
+#test = recup_data_feature()
+#print(test)

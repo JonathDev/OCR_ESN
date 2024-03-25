@@ -5,7 +5,7 @@ import os
 
 
 
-def monitoring(insert_query, values=None):
+def query_dbb(insert_query, values=None):
     load_dotenv()
 
     # Récupère les variables d'environnement
@@ -29,3 +29,10 @@ def monitoring(insert_query, values=None):
                 conn.commit()
     except Exception as e:
         print(f"Error during database operation: {e}")
+
+
+query_dbb("""
+
+  CREATE SCHEMA Billing;
+
+""")
