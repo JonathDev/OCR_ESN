@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h2>Importer une Facture</h2>
+        <form action="/process_import" method="post">
+            <div class="form-group">
+                <label for="invoice_name">Nom de la Facture:</label>
+                <input type="text" class="form-control" id="invoice_name" name="invoice_name" required>
+            </div>
+            <div class="form-group">
+                <label for="invoice_date">Date de la Facture:</label>
+                <input type="date" class="form-control" id="invoice_date" name="invoice_date" required>
+            </div>
+            <div class="form-group">
+                <label for="company_name">Nom de l'Entreprise:</label>
+                <input type="text" class="form-control" id="company_name" name="company_name" required>
+            </div>
+            <div class="form-group">
+                <label for="company_address">Adresse de l'Entreprise:</label>
+                <input type="text" class="form-control" id="company_address" name="company_address" required>
+            </div>
+            <div class="form-group">
+                <label for="company_category">Catégorie de l'Entreprise:</label>
+                <select class="form-control" id="company_category" name="company_category">
+                    <option value="IT">IT</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Education">Éducation</option>
+                    <option value="Santé">Santé</option>
+                    <!-- Ajoutez d'autres options selon vos besoins -->
+                </select>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="processed" name="processed">
+                <label class="form-check-label" for="processed">Traitée</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Soumettre</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+</body>
+</html>

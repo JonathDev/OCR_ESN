@@ -1,50 +1,22 @@
 
 from QRcode_module import recup_info_data_qrcode
 from ocr_module import recup_data_feature
-
-class Invoice:
-    def __init__(self, number_invoice='', date_invoice='', customer=None, total_price=''):
-        self.number_invoice = number_invoice
-        self.date_invoice = date_invoice
-        self.customer = customer  # Association avec un objet Customer
-        self.products = []  # Liste d'associations avec des objets Product
-        self.total_price = total_price
-
-class Customer:  
-    def __init__(self, customer_name='', address='', cust_id='', cat=''):
-        self.cust_id = cust_id = cust_id
-        self.customer_name = customer_name
-        self.address = address
-        self.CAT = cat
-
-class Product:
-    def __init__(self, productID="", name_product="", unit_price=""):
-        self.productID = productID
-        self.name_product = name_product
-        self.unit_price = unit_price
-
-class Order: 
-    def __init__(self, number_invoice="", product=None, quantity=""):
-        self.number_invoice = number_invoice
-        self.product = product  # Association avec un objet Product
-        self.quantity = quantity
-
+from decimal import Decimal
+import re 
 
 
     
-    
 
 
 
-def traitement_data_facture():
+def processing_data_invoices(url):
 
-    url = "https://invoiceocrp3.azurewebsites.net/static/FAC_2019_0005-1869518.png"
     traitements = recup_data_feature(url)
     analyses = traitements['donnees']
     seuil_y = 5
     phrases = []  # Liste pour stocker les phrases complètes
     text = ""  # Initialisation de la variable de texte pour la première ligne
-
+    #print(analyses)
     for i in range(len(analyses) - 1):
         pos_text1 = analyses[i]['pos'][1]  # Position y du coin supérieur gauche de l'élément actuel
         pos_text2 = analyses[i+1]['pos'][1]  # Position y du coin supérieur gauche de l'élément suivant
@@ -66,48 +38,73 @@ def traitement_data_facture():
 
 
 
-def traitement_qrcode_facture():
+def processing_qrcode_invoices(url):
 
-    url = "https://invoiceocrp3.azurewebsites.net/static/FAC_2019_0005-1869518.png" 
     resultat =  recup_info_data_qrcode(url)
     print(resultat)
+    return resultat
+
+
+
+def sort_data(url):
+    sentences_product = []
+    pattern_product = r"(?i)(.+?)\s+(\d+)\s+x\s+(\d+\.\d+)\s+Euro"
+    #pattern_number_invoice = r"(?i)INVOICE\s+([A-Z_0-9]+)"
+    pattern_customer = r"(?i)Bill to\s+([A-Za-z\s\-]+)" 
+    pattern_total_price = r"(?i)TOTAL\s+(\d+\.\d+)\s+Euro"
+    pattern_adress = r"(?i)^Address\s+(.+)$" 
+    #pattern_date_invoice = r"Issue date\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})"
+    sentences = processing_data_invoices(url)
+    #print(sentences)
+    infoqcode = processing_qrcode_invoices(url)
+    #print(infoqcode)
+    for i, sentence in enumerate(sentences):
+        if re.match(pattern_product, sentence):
+            sentences_product.append(sentence)
+        elif re.match(pattern_customer, sentence):
+            customer_name = sentence.replace('Bill to ', '') 
+            name_customer =  customer_name
+            #print(name_customer)
+        elif re.match(pattern_total_price, sentence): 
+            total_price_modify = sentence
+            total_price = total_price_modify.replace("TOTAL", "").replace("Euro", "").strip()
+
+
+            #print(total_price)
+        elif re.match(pattern_adress, sentence) :
+            adress_modify = sentence + ", " + sentences[i + 1]
+            adress = adress_modify.replace('Address ', '')
+            #print(adress)
+
+
+    info_product = {}
+    for i, sentence_product in enumerate(sentences_product, start=1):
+        match = re.search(pattern_product, sentence_product)
+        if match:
+            product_name, quantity, unit_price = match.group(1), int(match.group(2)), float(match.group(3))
+            # Stocker les informations dans le dictionnaire
+            info_product[f'produit{i}'] = {
+                'name_product': product_name,
+                'quantity': int(quantity),
+                "unit_price": float(unit_price)
+            }
+            #modif_cusomer_id = int(infoqcode.get('CUSTUMER_ID', ''))
+     
+    invoice_info = {
+        'customer_name': name_customer,
+        'address': adress,
+        'total_price': total_price,
+        'products': info_product,
+        'url' : url,
+        'invoice_number': infoqcode.get('INVOICE', ''),
+        'date': infoqcode.get('DATE', ''),
+        'customer_id': int(infoqcode.get('CUST', '')),
+        'category': infoqcode.get('CAT', ''),
+    }
+    return invoice_info
 
 
 
 
-def cate_phrases(): 
-    phrases = traitement_data_facture()
-    print(phrases)
-
-
-cate_phrases()
-
-"""
-    
-    # Exemple des positions des blocs de texte
-pos_text1 = [37.0, 309.0, 103.0, 310.0, 103.0, 330.0, 37.0, 329.0]
-pos_text2 = [546.0, 310.0, 691.0, 311.0, 691.0, 328.0, 546.0, 328.0]
-
-# Extraire les positions y des coins supérieurs pour comparer
-y_sup_text1 = pos_text1[1]
-y_sup_text2 = pos_text2[1]
-
-# Seuil de différence y pour considérer que les textes sont sur la même ligne
-seuil_y = 5.0
-
-# Vérifier si les deux textes sont sur la même ligne
-sont_sur_meme_ligne = abs(y_sup_text1 - y_sup_text2) <= seuil_y
-
-# Textes à combiner
-text1 = "TOTAL"
-text2 = "1661.00 Euro"
-
-# Combinaison des textes si sur la même ligne
-if sont_sur_meme_ligne:
-    phrase_complete = f"{text1}: {text2}"
-else:
-    phrase_complete = "Les textes ne sont pas sur la même ligne."
-
-phrase_complete
-
-    """
+#test = sort_data('https://invoiceocrp3.azurewebsites.net/static/FAC_2019_0001-112650.png')
+#print(test)

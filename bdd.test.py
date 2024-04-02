@@ -47,28 +47,57 @@ CREATE TABLE Billing.Customer (
     cat VARCHAR(3)
 );
 
-CREATE TABLE facturation.Product (
+CREATE TABLE Billing.Product (
     productID INT PRIMARY KEY,
     name_product TEXT,
-    unit_price INT
+    unit_price FLOAT
 );
 
-CREATE TABLE facturation.Invoice (
+CREATE TABLE Billing.Invoice (
     number_invoice VARCHAR(50) PRIMARY KEY,
     date_invoice DATE,
     cust_id INT,
     invoice_link TEXT,
-    total_price INT,
-    FOREIGN KEY (cust_id) REFERENCES facturation.Customer(cust_id)
+    total_price FLOAT,
+    FOREIGN KEY (cust_id) REFERENCES billing.Customer(cust_id)
 );
 
-CREATE TABLE facturation.`Order` (
+CREATE TABLE Billing.Orders (
     order_detail INT PRIMARY KEY,
     number_invoice VARCHAR(50),
     productID INT,
     quantity INT,
-    FOREIGN KEY (number_invoice) REFERENCES facturation.Invoice(number_invoice),
-    FOREIGN KEY (productID) REFERENCES facturation.Product(productID)
+    FOREIGN KEY (number_invoice) REFERENCES billing.Invoice(number_invoice),
+    FOREIGN KEY (productID) REFERENCES billing.Product(productID)
 
 
 """
+
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Date, Numeric
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import relationship, sessionmaker
+from dotenv import load_dotenv
+import os
+from utilities import sort_data
+from decimal import Decimal
+from datetime import datetime
+import pyodbc
+import json
+import urllib
+
+
+load_dotenv()
+
+# Récupère les variables d'environnement
+SERVER = os.getenv('SERVEUR')
+ADMIUSER = os.getenv('ADMIUSER')
+DATABASE = os.getenv('DATABASE')
+PASSWORD = os.getenv('PASSWORD')
+DRIVER = os.getenv('DRIVER')
+
+conn_str = "Driver={ODBC Driver 18 for SQL Server};Server=tcp:ocr-serveur-jonathan.database.windows.net,1433;Database=db-ocr-jonathan;Uid=ocrjonathan;Pwd=2Alariszera!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+try:
+    with pyodbc.connect(conn_str, timeout=10) as conn:
+        print("Connexion réussie")
+except Exception as e:
+    print(f"Erreur lors de la connexion : {e}")

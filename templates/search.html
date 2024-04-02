@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche</title>
+</head>
+<body>
+
+    <body>
+        <h1>Recherche de Factures</h1>
+        <form action="/search/" method="get">
+            <input type="date" name="start_date" value="{{ request.query_params.start_date }}">
+            <input type="date" name="end_date" value="{{ request.query_params.end_date }}">
+            <input type="text" name="name_customer" placeholder="Nom de l'entreprise" value="{{ request.query_params.name_customer }}">
+            <button type="submit">Rechercher</button>
+        </form>
+        
+        <h2>Résultats:</h2>
+        {% for invoice in invoices %}
+            <div>
+                <h3>{{ invoice.number_invoice }}</h3>
+                <p>Entreprise: {{ invoice.customer.name_customer }}</p>
+                <p>Date: {{ invoice.date_invoice }}</p>
+                <p>Total: {{ invoice.total_price }}</p>
+                <!-- Ajoutez plus de détails selon vos besoins -->
+            </div>
+        {% endfor %}
+        
+        <!-- Ici, vous pouvez ajouter la logique de pagination -->
+    
+    </body>
+    
+</body>
+</html>

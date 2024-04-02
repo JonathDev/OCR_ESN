@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import os
 import time
 
-def recup_data_feature(url="https://invoiceocrp3.azurewebsites.net/static/FAC_2019_0002-521208.png"):
+def recup_data_feature(url="https://invoiceocrp3.azurewebsites.net/static/FAC_2019_0001-112650.png"):
     try:
         load_dotenv()  # Charge les variables d'environnement
 
