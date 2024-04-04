@@ -105,6 +105,3 @@ def sort_data(url):
 
 
 
-
-#test = sort_data('https://invoiceocrp3.azurewebsites.net/static/FAC_2019_0001-112650.png')
-#print(test)

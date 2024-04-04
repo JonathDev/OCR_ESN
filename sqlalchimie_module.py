@@ -1,6 +1,6 @@
 
 import logging
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Date, Numeric
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Date, Numeric, Boolean
 from sqlalchemy.engine import URL
 from sqlalchemy.exc import SQLAlchemyError  # Import specific SQLAlchemy exception
 from sqlalchemy.orm import declarative_base
@@ -17,6 +17,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import pyodbc
 import json
 import urllib
+import math
 
 
 
@@ -102,6 +103,8 @@ class Invoice(Base):
     cust_id = Column(Integer, ForeignKey('Billing.Customer.cust_id'))
     total_price = Column(Numeric)
     invoice_link = Column(String)
+    # Ajout de la nouvelle colonne pour le statut de paiement
+    paid = Column(Boolean, default=False)
     
     # Relation à Customer
     customer = relationship("Customer", back_populates="invoices")
@@ -349,25 +352,215 @@ def clear_database():
     with Session() as session:
         delete_all_data(session)
 
+
+
+def get_invoice_names():
+    try:
+        # Établissement de la session
+        engine = create_engine_with_connection_string()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        # Requête pour récupérer tous les noms des factures
+        invoice_names = session.query(Invoice.number_invoice).all()
+
+        # Fermeture de la session
+        session.close()
+
+        # Extraction des noms des factures depuis les tuples retournés par la requête
+        invoice_names_list = [name[0] for name in invoice_names]
+        #print(f"suis dans ma fonction fet : {invoice_names_list}")
+        return invoice_names_list
+    except Exception as e:
+        print(f"Erreur lors de la récupération des noms des factures : {e}")
+        return []
+
+
 # Dans sqlalchimie_module.py
 from contextlib import contextmanager
-"""
+
 @contextmanager
 def get_db():
+    print("on vient d'appeler cette fonction")
     db = SessionLocal()
     try:
+        print('elle passe par la')
         yield db
     finally:
+        
         db.close()
+        
 
-# Utilisez plutôt quelque chose comme ça :
-def recherche_factures(session: Session, start_date: str = None, end_date: str = None, name_customer: str = None):
-    query = session.query(Invoice).join(Customer, Invoice.cust_id == Customer.cust_id)
-    # Ajoutez votre logique de filtrage ici...
-    return query.all()
+
+
 """
-#clear_database()
-#add_fature(url)
+
+def search_invoices(start_date=None, end_date=None, customer_name=None, number_invoice=None, name_product=None):
+    try:
+        # Établissement de la session
+        engine = create_engine_with_connection_string()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        # Construction initiale de la requête
+        query = session.query(
+            Invoice.number_invoice,
+            Invoice.date_invoice,
+            Invoice.invoice_link,
+            Customer.name_customer,
+            Customer.cat,
+            Invoice.total_price,
+            Product.name_product,
+            Orders.quantity,
+            Product.unit_price
+        ).join(Customer, Invoice.cust_id == Customer.cust_id
+        ).join(Orders, Orders.number_invoice == Invoice.number_invoice
+        ).join(Product, Product.productID == Orders.productID)
+
+        # Ajout de filtres basés sur les paramètres fournis
+        if start_date and end_date:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+            query = query.filter(Invoice.date_invoice.between(start_date_obj, end_date_obj))
+        
+        if customer_name:
+            query = query.filter(Customer.name_customer == customer_name)
+        
+        if number_invoice:
+            query = query.filter(Invoice.number_invoice == number_invoice)
+        
+        if name_product:
+            query = query.filter(Product.name_product == name_product)
+
+        # Exécution de la requête
+        invoices = query.all()
+
+        # Fermeture de la session
+        session.close()
+
+        # Traitement des résultats pour regrouper par facture avec détails des produits
+        invoices_info = {}
+        for invoice in invoices:
+            invoice_key = invoice[0]  # Numéro de la facture
+            if invoice_key not in invoices_info:
+                invoices_info[invoice_key] = {
+                    'invoice_number': invoice_key,
+                    'date_invoice': invoice[1],
+                    'invoice_link': invoice[2],  # Ici tu récupères correctement invoice_link
+                    'customer_name': invoice[3],  # Assigne le bon index pour customer_name
+                    'category': invoice[4],
+                    'total_price': invoice[5],
+                    'products': []  # Liste pour stocker les détails des produits
+                }
+            
+            # Ajout de chaque produit dans la liste des produits de la facture correspondante
+            invoices_info[invoice_key]['products'].append({
+                'product_name': invoice[6],
+                'quantity': invoice[7],
+                'unit_price': invoice[8]
+            })
+
+        # Préparation de la sortie en liste de dictionnaires, un par facture
+        output = list(invoices_info.values())
+        return output
+    except Exception as e:
+        print(f"Erreur lors de la recherche des factures : {e}")
+        return []
+
+"""
+
+def search_invoices(start_date=None, end_date=None, customer_name=None, number_invoice=None, name_product=None, paid=None):
+    try:
+        # Établissement de la session
+        engine = create_engine_with_connection_string()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        # Construction initiale de la requête
+        query = session.query(
+            Invoice.number_invoice,
+            Invoice.date_invoice,
+            Invoice.invoice_link,
+            Customer.name_customer,
+            Customer.cat,
+            Invoice.total_price,
+            Product.name_product,
+            Orders.quantity,
+            Product.unit_price,
+            Invoice.paid  # Maintient du statut de paiement
+        ).join(Customer, Invoice.cust_id == Customer.cust_id
+        ).join(Orders, Orders.number_invoice == Invoice.number_invoice
+        ).join(Product, Product.productID == Orders.productID)
+
+        # Ajout de filtres basés sur les paramètres fournis
+        if start_date and end_date:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+            query = query.filter(Invoice.date_invoice.between(start_date_obj, end_date_obj))
+        
+        if customer_name:
+            query = query.filter(Customer.name_customer == customer_name)
+        
+        if number_invoice:
+            query = query.filter(Invoice.number_invoice == number_invoice)
+        
+        if name_product:
+            query = query.filter(Product.name_product == name_product)
+
+        # Nouveau: Ajout du filtre pour le statut de paiement si spécifié
+        if paid is not None:
+            # Convertit le paramètre en booléen; True pour 'True', 'true', 1, etc.
+            paid_bool = paid.lower() in ['true', '1', 't', 'y', 'yes']
+            query = query.filter(Invoice.paid == paid_bool)
+        
+        # Assurez-vous d'ajouter ORDER BY avant OFFSET et LIMIT
+        query = query.order_by(Invoice.date_invoice)
+
+        # Exécution de la requête
+
+        invoices = query.all()
+
+        # Fermeture de la session
+        session.close()
+
+        # Traitement des résultats pour regrouper par facture avec détails des produits et le statut de paiement
+        invoices_info = {}
+        for invoice in invoices:
+            invoice_key = invoice[0]  # Numéro de la facture
+            if invoice_key not in invoices_info:
+                invoices_info[invoice_key] = {
+                    'invoice_number': invoice_key,
+                    'date_invoice': invoice[1],
+                    'invoice_link': invoice[2],
+                    'customer_name': invoice[3],
+                    'category': invoice[4],
+                    'total_price': invoice[5],
+                    'paid': invoice[9],  # Inclut l'information de paiement
+                    'products': []  # Liste pour stocker les détails des produits
+                }
+            
+            # Ajout de chaque produit dans la liste des produits de la facture correspondante
+            invoices_info[invoice_key]['products'].append({
+                'product_name': invoice[6],
+                'quantity': invoice[7],
+                'unit_price': invoice[8]
+            })
+        
+        # Préparation de la sortie en liste de dictionnaires, un par facture
+        output = list(invoices_info.values())
+        return output
+    except Exception as e:
+        print(f"Erreur lors de la recherche des factures : {e}")
+        return [], 0 
 
 
-    
+
+def paginate_results(results, page=1, limit=10):
+    start_index = (page - 1) * limit
+    end_index = start_index + limit
+    page_results = results[start_index:end_index]
+    total_pages = math.ceil(len(results) / limit)
+    return page_results, total_pages
+
+#test = sort_data('https://invoiceocrp3.azurewebsites.net/static/FAC_2019_0001-112650.png')
+#print(test)

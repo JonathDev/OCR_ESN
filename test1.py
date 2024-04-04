@@ -56,3 +56,87 @@ else:
 
 product_name, quantity, unit_price
     """
+
+
+        /* Mise en forme du conteneur principal */
+        .carte_visite_recto_verso {
+            flex: 0 0 auto;
+            width: calc(25% - 40px); /* 20% pour 4 par ligne et 20px pour compter les marges des deux côtés */
+            margin: 20px;
+            -webkit-perspective: 800px;
+            perspective: 800px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2)
+        }
+
+     /* Mise en forme générale de la carte (taille et préservation de la position 3D des objets fils) */
+     .carte_visite_recto_verso .carte {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        backface-visibility: hidden;
+        -webkit-transform-style: preserve-3d;
+        transform-style: preserve-3d;
+        transition: transform 0.5s; /* Ajout d'une transition pour une animation fluide */
+    }
+
+        /* Principe général des couches : non affichée en mode retourné */
+        .carte_visite_recto_verso .carte .couche {
+            margin: 0px !important;
+            -webkit-transition: 0.5s;
+            transition: 0.5s;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+
+        /* Positionnement du recto à l'intérieur du bloc carte */
+        .carte_visite_recto_verso .carte .recto {
+            width: 100%; /* A adapter à votre besoin */
+            height: 420px; /* A adapter à votre besoin */
+            position: absolute;
+            z-index: 1;
+        }
+
+ 
+        /* Rotation initiale des couches dont la couche verso est retournée (-180) pour la rendre invisible */
+        .carte_visite_recto_verso .carte .verso {
+            transform: rotateY(-180deg);
+            position: absolute;
+            top: 0;
+        }
+
+        /* Rotation pour montrer le verso de la carte */
+        .carte_visite_recto_verso .carteModeVerso .recto {
+            transform: rotateY(180deg);
+        }
+
+        /* Rotation pour montrer le recto de la carte */
+        .carte_visite_recto_verso .carteModeVerso .verso {
+            transform: rotateY(0deg);
+        }
+
+   
+
+
+
+
+/* Mise en forme de la pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.pagination a {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #333;
+}
+.pagination a.active {
+    background-color: #007bff;
+    color: white;
+}
