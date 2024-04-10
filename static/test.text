@@ -1,0 +1,64 @@
+/* Configuration de base pour la perspective 3D */
+.carte {
+    perspective: 1000px;
+    width: 100%; /* Ajustez la largeur selon les besoins */
+    min-height: 420px; /* Ajustez la hauteur minimale selon le contenu */
+    position: relative;
+    margin-bottom: 20px; /* Espace entre les cartes */
+}
+
+/* Conteneur interne pour les faces recto et verso */
+.couche {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s; /* Durée de la transition pour un effet doux */
+}
+
+/* Configuration commune pour les faces recto et verso */
+.recto, .verso {
+    backface-visibility: hidden; /* Cache la face arrière pendant la rotation */
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Rotation de 180 degrés pour la face verso */
+.verso {
+    transform: rotateY(180deg);
+}
+
+/* Applique la rotation lorsque la classe .flipped est ajoutée */
+.carte.flipped .couche {
+    transform: rotateY(180deg);
+}
+
+/* Ajustements supplémentaires pour le contenu des cartes */
+.card {
+    width: 100%; /* S'assure que la carte utilise toute la largeur disponible */
+    height: auto; /* Permet à la hauteur de s'adapter au contenu */
+    overflow: hidden; /* Empêche le débordement du contenu hors de la carte */
+}
+
+.image-facture {
+    max-width: 100%; /* Permet à l'image de s'adapter à la largeur de la carte */
+    height: auto; /* Maintient le ratio d'aspect de l'image */
+}
+.navbar {
+    background-color: #343a40;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.navbar-nav .nav-link {
+    color: #fff;
+}
+.verify{
+    margin-top: 20px;
+}

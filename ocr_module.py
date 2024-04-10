@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import os
 import time
 
-def recup_data_feature(url="https://invoiceocrp3.azurewebsites.net/static/FAC_2019_0001-112650.png"):
+def recup_data_feature(url="https://invoiceocrp3.azurewebsites.net/static/FAC_2019_0004-46050.png"):
     try:
         load_dotenv()  # Charge les variables d'environnement
 
@@ -50,6 +50,4 @@ def recup_data_feature(url="https://invoiceocrp3.azurewebsites.net/static/FAC_20
         # Gérer les exceptions générales
         return {'statut': 'Erreur', 'message_erreur': str(e), 'code_statut': None}
 
-# Exécution et affichage du résultat
-#test = recup_data_feature()
-#print(test)
+

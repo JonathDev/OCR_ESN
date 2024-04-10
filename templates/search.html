@@ -5,134 +5,190 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <title>Recherche</title>
 </head>
 <body>
-    <nav class="navbar bg-body-tertiary">
+<header> 
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <img src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
+            <a class="navbar-brand" href="home.html">
+                <img src="/static/logo.png" alt="QuickBooks Logo" width="50" height="40" class="d-inline-block align-text-top">
                 QuickBooks
             </a>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analyses">Analyses</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3 position-sticky" style="top:0; height: 100vh; overflow-y: auto;">
-                <h2>Recherche</h2>
-                <form id="search-form" action="/search/" method="post">
-                    <div class="mb-3">
-                        <label for="start_date" class="form-label">Date de début</label>
-                        <input type="date" class="form-control" name="start_date" value="{{ request.query_params.start_date }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="end_date" class="form-label">Date de fin</label>
-                        <input type="date" class="form-control" name="end_date" value="{{ request.query_params.end_date }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="name_customer" class="form-label">Nom de l'entreprise</label>
-                        <input type="text" class="form-control" name="name_customer" placeholder="Nom de l'entreprise" value="{{ request.query_params.name_customer }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="number_invoice" class="form-label">Nom de la facture</label>
-                        <input type="text" class="form-control" name="number_invoice" placeholder="Nom de la facture" value="{{ request.query_params.number_invoice }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="name_product" class="form-label">Nom du produit</label>
-                        <input type="text" class="form-control" name="name_product" placeholder="Nom du produit" value="{{ request.query_params.name_product }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Statut de la facture</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="paid" id="paid_all" value="" {{ "checked" if request.query_params.paid == "all" or not request.query_params.paid else "" }}>
-                            <label class="form-check-label" for="paid_all">Toutes</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="paid" id="paid_true" value="1" {{ "checked" if request.query_params.paid == "true" else "" }}>
-                            <label class="form-check-label" for="paid_true">Payées</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="paid" id="paid_false" value="0" {{ "checked" if request.query_params.paid == "false" else "" }}>
-                            <label class="form-check-label" for="paid_false">Non payées</label>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Rechercher</button>
-                </form>
+</header>  
+<main class="container-fluid">
+    <div class="row">
+    <aside class="col-md-2">
+        <h2>Recherche</h2>
+        <form id="search-form" action="/search/" method="post">
+            <div class="mb-3">
+                <label for="start_date" class="form-label">Date de début</label>
+                <input type="date" class="form-control" name="start_date" value="{{ request.query_params.start_date }}">
             </div>
-            <div class="col-md-9">
-                <h2>Recherche de Factures</h2>
-                <h3>Résultats:</h3>
-                <div class="row"> 
-                    {% if message %}
-                        <p>{{ message }}</p>
-                    {% else %}
-                        {% for invoice in factures %}
-                        <div class="col-md-3"> 
-                            <div class="carte_visite_recto_verso">
-                                <div class="carte carteModeRecto">
-                                    <div class="couche recto">
-                                        <div class="card" style="width: 100%;">
-                                            <img src="..." class="card-img-top" alt="...">
-                                            <div class="card-body">
-                                                <h4 class="card-title text-center">{{ invoice.invoice_number }}</h4>
-                                                <p class="card-text"> Date de la facture : {{invoice.date_invoice}}</p>
-                                            </div>
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item">
-                                                    <h5 class="text-center mb-3">Informations du client :</h5>
-                                                    <div class="d-flex flex-column align-items-center">
-                                                        <input type="text" class="form-control mb-2" value="{{ invoice.customer_name }}" placeholder="Nom du client" style="width: 90%;">
-                                                        <input type="text" class="form-control" value="{{ invoice.category }}" placeholder="Catégorie" style="width: 90%;">
-                                                    </div>
-                                                </li>
-                                                
-                                                
-                                                <li class="list-group-item">
-                                                    <div class="text-center mb-2"> <!-- Classe Bootstrap pour centrer le texte et ajouter une marge en bas -->
-                                                        <h5>Total de la facture :</h5>
-                                                    </div>
-                                                    <div class="d-flex justify-content-center"> <!-- Classe Bootstrap pour centrer le champ d'entrée -->
-                                                        <div class="input-group mb-2 mr-sm-2">
-                                                            <input type="number" class="form-control" value="{{ invoice.total_price }}" placeholder="Prix total" aria-label="Prix total en euros">
-                                                            <div class="input-group-append">
-                                                                <span class="input-group-text">€</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                
-                                                <li class="list-group-item d-flex justify-content-center align-items-center">
-                                                    {% if invoice.paid %}
-                                                        <input type="checkbox" checked disabled> <span>Réglé</span>
-                                                    {% else %}
-                                                        <input type="checkbox"> <span>Non payé</span>
-                                                    {% endif %}
-                                                </li>
-                                                
-                                                
-                                                
-                                                <li class="list-group-item">A third item</li>
-                                            </ul>
-                                            <div class="card-body">
-                                                <button type="button" class="btn btn-primary" onclick="showVerso(this);">Factures</button>
-                                                <button type="button" class="btn btn-primary" onclick="update();">Update</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="couche verso">Verso
-                                        
-                                        <button type="button" class="btn btn-primary" onclick="showRecto(this);">Produits</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
+            <div class="mb-3">
+                <label for="end_date" class="form-label">Date de fin</label>
+                <input type="date" class="form-control" name="end_date" value="{{ request.query_params.end_date }}">
+            </div>
+            <div class="mb-3">
+                <label for="name_customer" class="form-label">Nom de l'entreprise</label>
+                <input type="text" class="form-control" name="name_customer" placeholder="Nom de l'entreprise" value="{{ request.query_params.name_customer }}">
+            </div>
+            <div class="mb-3">
+                <label for="number_invoice" class="form-label">Nom de la facture</label>
+                <input type="text" class="form-control" name="number_invoice" placeholder="Nom de la facture" value="{{ request.query_params.number_invoice }}">
+            </div>
+            <div class="mb-3">
+                <label for="name_product" class="form-label">Nom du produit</label>
+                <input type="text" class="form-control" name="name_product" placeholder="Nom du produit" value="{{ request.query_params.name_product }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Statut de la facture</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="paid" id="paid_all" value="" {{ "checked" if request.query_params.paid == "all" or not request.query_params.paid else "" }}>
+                    <label class="form-check-label" for="paid_all">Toutes</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="paid" id="paid_true" value="1" {{ "checked" if request.query_params.paid == "true" else "" }}>
+                    <label class="form-check-label" for="paid_true">Payées</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="paid" id="paid_false" value="0" {{ "checked" if request.query_params.paid == "false" else "" }}>
+                    <label class="form-check-label" for="paid_false">Non payées</label>
                 </div>
             </div>
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+        </form>
+        <div class="erify mt-4 mb-2">
+            <h3 class="small">Verification des nouvelles factures</h3>
+            <form action="/search/verify_invoices" method="post">
+                    <!-- Bouton pour déclencher la vérification des factures -->
+                <button type="submit" class="btn btn-primary">Vérifier les factures</button>
+            </form>
         </div>
-    </div>
+    </aside>
+    <section class="col-md-10">
+        <h1 class="text-center">Recherche de Factures</h1>
+        <h2>Résultats:</h2>
+        <div class="row"> 
+            {% if message %}
+                <p>{{ message }}</p>
+            {% else %}
+                {% for invoice in factures %}
+                <div class="flip-card-3D-wrapper col-md-3">
+                    <div class="flip-card">
+                        <div class="flip-card-front">
+                            <div class='card-img'>
+                                {% if invoice.paid %}
+                                <img class="image-facture"  src="/static/factureok.png" alt="Facture réglée">
+                                {% else %}
+                                <img class="image-facture" src="/static/facturenonok.png" alt="Facture non payée">
+                                {% endif %}
+                            </div>
+                            <div class='card-body'>
+                                <h4 class="card-title text-center">{{ invoice.invoice_number }}</h4>
+                                <p class="card-text"> Date de la facture : {{invoice.date_invoice}}</p>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <h5 class="text-center mb-3">Informations du client :</h5>
+                                        <div class="d-flex flex-column align-items-center mb-3">
+                                            <input type="text" class="form-control mb-2" id="customer_name_{{ invoice.invoice_number }}" value="{{ invoice.customer_name }}" placeholder="Nom de l'entreprise" style="width: 90%;">
+                                            <input type="text" class="form-control" id="adresse_customer_{{ invoice.invoice_number }}" value="{{ invoice.adresse_customer }}" placeholder="Adresse" style="width: 90%;">
+                                        </div>
+                                        <h5 class="text-center mb-3">Catégorie du client :</h5>
+                                        <div class="d-flex justify-content-center">
+                                            <input type="text" class="form-control" id="invoice.category_{{invoice.invoice_number}}" value="{{ invoice.category }}" placeholder="Catégorie" style="width: 90%;">
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <div class="text-center mb-2"> <!-- Classe Bootstrap pour centrer le texte et ajouter une marge en bas -->
+                                            <h5>Total de la facture :</h5>
+                                        </div>
+                                        <div class="d-flex justify-content-center"> <!-- Classe Bootstrap pour centrer le champ d'entrée -->
+                                            <div class="input-group mb-2 mr-sm-2">
+                                                <input type="number" class="form-control"  value="{{ invoice.total_price }}" placeholder="Prix total" aria-label="Prix total en euros">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">€</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-center align-items-center">
+                                        <input type="checkbox" id="paid_{{ invoice.invoice_number }}" onchange="togglePaidStatus(this, '{{ invoice.invoice_number }}')" {{ "checked" if invoice.paid }}>
+                                        <span>{{ "Réglé" if invoice.paid else "Non payé" }}</span>
+                                    </li>
+                                     <li class="list-group-item d-flex justify-content-center align-items-center">
+                                        <a href="{{ invoice.invoice_link }}" target="_blank" title="Voir la facture" style="font-size: 24px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-file-invoice"></i>
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <button type="button" onclick="showVerso(this);" class="flip-card-btn-turn-to-back">Factures</button>
+                                        <button type="button" onclick="updateInvoice('{{invoice.invoice_number}}')">Update</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div class="card-header">
+                                <h4>Produits :</h4>
+                            </div>
+                            <div class='card-body'>
+                                <ul class="product list-group list-group-flush">
+                                    {% for product in invoice.products %}
+                                    <li class="list-group-item">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control mb-2 product-name" id="product_name_{{ invoice.invoice_number }}_{{ product.productID }}" data-invoice-number="{{ invoice.number_invoice }}" data-product-id="{{ product.productID }}" value="{{ product.product_name }}" placeholder="Nom du produit">
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="form-group flex-grow-1 mr-2">
+                                                <input type="number" class="form-control quantite" id="product_quantity_{{ invoice.invoice_number }}_{{ product.productID }}" data-invoice-number="{{ invoice.number_invoice }}" data-product-id="{{ product.productID }}" value="{{ product.quantity }}" placeholder="Quantité" min="1">
+                                            </div>
+                                            <div class="form-group flex-grow-1">
+                                                <input type="text" class="form-control prix-unitaire" id="product_unit_price_{{ invoice.invoice_number }}_{{ product.productID }}" data-invoice-number="{{ invoice.number_invoice }}" data-product-id="{{ product.productID }}" value="{{ product.unit_price }}" placeholder="Prix unitaire">
+                                            </div>
+                                            <button class="btn btn-danger btn-supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                    <li class="list-group-item font-weight-bold">
+                                        <div class="text-right">
+                                            Total : <span class="total" id="total_span_{{ invoice.invoice_number }}">0</span> €
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-footer">
+                                <button type="button" class="btn btn-secondary btn-ajouterProduit">Ajouter un produit</button>
+                                <button type="button" class="btn btn-secondary flip-card-btn-turn-to-front" onclick="showRecto(this);">Recto</button>
+                                <button type="button" onclick="updateInvoice('{{ invoice.invoice_number }}')">Update</button>
+          
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
+                {% endfor %}
+            {% endif %}
+        </div>
+    </section>
+</div>
+</main>
+    
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

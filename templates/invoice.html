@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informations de la facture</title>
+</head>
+<body>
+    <h1>Informations de la facture</h1>
+    <p>Nom du client : <span id="customer_name"></span></p>
+    <p>Prix total : <span id="total_price"></span></p>
+    <p>Payé : <span id="paid"></span></p>
+
+    <script>
+        // Récupérer les informations de la facture depuis le serveur
+        fetch("/search/FAC_2019_0007/")
+            .then(response => response.text())
+            .then(html => {
+                // Insérer le contenu HTML dans la page
+                document.body.innerHTML = html;
+            })
+            .catch(error => console.error('Erreur lors de la récupération des informations de la facture:', error));
+    </script>
+</body>
+</html>

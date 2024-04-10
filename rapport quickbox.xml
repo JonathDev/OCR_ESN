@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<indexing>
+ <object alt="" name="Image1" object_type="graphic"/>
+ <object alt="" name="Image2" object_type="graphic"/>
+ <object alt="" name="Image3" object_type="graphic"/>
+ <object alt="" name="Image4" object_type="graphic"/>
+ <object alt="" name="Image5" object_type="graphic"/>
+ <object alt="" name="Image6" object_type="graphic"/>
+ <object alt="" name="Image7" object_type="graphic"/>
+ <object alt="" name="Image8" object_type="graphic"/>
+ <object alt="" name="Image9" object_type="graphic"/>
+ <object alt="" name="Image10" object_type="graphic"/>
+ <object alt="" name="Image11" object_type="graphic"/>
+ <object alt="" name="Image12" object_type="graphic"/>
+ <object alt="" name="Image13" object_type="graphic"/>
+ <object alt="" name="Image14" object_type="graphic"/>
+ <paragraph index="51" node_type="writer">Rapport sur l'Application Web QuickBox</paragraph>
+ <paragraph index="53" node_type="writer">Par Jonathan Begot</paragraph>
+ <paragraph index="58" node_type="writer">Présentation de l’application web</paragraph>
+ <paragraph index="60" node_type="writer">QuickBox est une application web en développement axée sur la gestion automatisée des factures pour les entreprises. Son objectif principal est de simplifier les processus financiers en automatisant le traitement des factures et en fournissant des outils d'analyse de données pour aider à la prise de décisions marketing.Conçue dans le cadre d'une formation en intelligence artificielle, QuickBox vise à offrir une solution pratique et efficace pour la gestion des factures, en utilisant les technologies d'IA pour lire et extraire les données des factures, réduisant ainsi les erreurs et les délais de traitement.</paragraph>
+ <paragraph index="76" node_type="writer">Plan du développement de l’application</paragraph>
+ <paragraph index="77" node_type="writer">Fonctionnalités Actuelles</paragraph>
+ <paragraph index="78" node_type="writer">Récupération des images de factures via une API externe.</paragraph>
+ <paragraph index="79" node_type="writer">Utilisation de l'IA Azure Cognitive Services Vision pour extraire les données des factures.</paragraph>
+ <paragraph index="80" node_type="writer">Mise en place d'une base de données relationnelle pour le stockage et le traitement des factures.</paragraph>
+ <paragraph index="81" node_type="writer">Fonctionnalité de recherche de factures.</paragraph>
+ <paragraph index="82" node_type="writer">Fonctionnalité de traitement des factures et des produits.</paragraph>
+ <paragraph index="83" node_type="writer">Analyses de données intégrées.</paragraph>
+ <paragraph index="84" node_type="writer">Développements Futurs</paragraph>
+ <paragraph index="85" node_type="writer">Amélioration de la charte graphique et de l'expérience utilisateur.</paragraph>
+ <paragraph index="86" node_type="writer">Gestion de bug</paragraph>
+ <paragraph index="87" node_type="writer">Monitoring</paragraph>
+ <paragraph index="88" node_type="writer">Ajout de fonctionnalités d'analyse avancée, potentiellement en utilisant l'IA.</paragraph>
+ <paragraph index="89" node_type="writer">Possibilité pour les utilisateurs de choisir leurs propres graphiques personnalisés.</paragraph>
+ <paragraph index="90" node_type="writer">Optimisation des performances pour une utilisation plus fluide et rapide.</paragraph>
+ <paragraph index="108" node_type="writer">capture et Traitement des Factures avec l'IA Azure Cognitive Services</paragraph>
+ <paragraph index="110" node_type="writer">QuickBox récupère les images des factures à partir d'une API externe Azure. Grâce au service Azure Cognitive Services Vision, QuickBox peut extraire automatiquement les informations essentielles des factures, comme les montants, les dates et les détails des produits. En utilisant la reconnaissance optique de caractères (OCR), ce service analyse les images pour comprendre leur contenu. Ainsi, QuickBox simplifie la gestion des finances en automatisant le traitement des données financières à partir des images des factures.</paragraph>
+ <paragraph index="112" node_type="writer">Les images des factures </paragraph>
+ <paragraph index="121" node_type="writer">Les données extraites comprennent non seulement les mots contenus dans les factures, mais également leur position précise dans le document</paragraph>
+ <paragraph index="125" node_type="writer">
+Ces étapes sont utilisées pour traiter les données extraites des factures :</paragraph>
+ <paragraph index="126" node_type="writer">Analyse des données de la facture : Les données de la facture sont analysées pour les organiser ligne par ligne en fonction de la position des mots.</paragraph>
+ <paragraph index="127" node_type="writer">Extraction des informations du code QR : Les informations supplémentaires de la facture sont extraites à partir d'un code QR présent sur celle-ci.</paragraph>
+ <paragraph index="128" node_type="writer">Extraction des détails spécifiques : Les informations, comme le nom du client, l'adresse de facturation, le montant total de la facture et les détails des produits, sont extraites et organisées en utilisant des expressions régulières (regex) pour les identifier dans les données de la facture.</paragraph>
+ <paragraph index="130" node_type="writer">Les données récupérées : </paragraph>
+ <paragraph index="147" node_type="writer">Mise en place d'une base de données relationnelle pour le stockage des informations des factures</paragraph>
+ <paragraph index="149" node_type="writer">Nous avons mis en place la structure de la base de données en définissant quatre tables principales :</paragraph>
+ <paragraph index="150" node_type="writer">Customer (Client) :</paragraph>
+ <paragraph index="151" node_type="writer">Cette table contient des informations sur les clients, telles que leur identifiant, leur nom, leur adresse et leur catégorie.</paragraph>
+ <paragraph index="152" node_type="writer">Product (Produit) :</paragraph>
+ <paragraph index="153" node_type="writer">Cette table stocke les détails des produits, y compris leur identifiant, leur nom et leur prix unitaire.</paragraph>
+ <paragraph index="154" node_type="writer">Invoice (Facture) :</paragraph>
+ <paragraph index="155" node_type="writer">Cette table enregistre les détails des factures, tels que leur numéro, leur date, leur montant total et leur lien vers le document de facturation. Elle inclut également une colonne pour indiquer si la facture a été payée ou non.</paragraph>
+ <paragraph index="156" node_type="writer">Orders (Commandes) :</paragraph>
+ <paragraph index="157" node_type="writer">Cette table maintient les informations sur les commandes associées aux factures. Chaque commande est liée à une facture par son numéro de facture, et elle contient également l'identifiant du produit commandé et la quantité associée.</paragraph>
+ <paragraph index="161" node_type="writer">Mise en place de l'ORM avec SQLAlchemy</paragraph>
+ <paragraph index="164" node_type="writer">La mise en place de l'ORM (Object-Relational Mapping) avec SQLAlchemy dans cette application permet une gestion simplifiée et efficace des données stockées dans une base de données relationnelle. Voici les principaux éléments à retenir :</paragraph>
+ <paragraph index="165" node_type="writer">Modèles de données définis sous forme de classes Python : Les données sont structurées à l'aide de classes Python telles que Customer, Product, Invoice et Orders, qui correspondent chacune à une table dans la base de données. Ces classes définissent les colonnes de chaque table ainsi que les relations entre les tables.</paragraph>
+ <paragraph index="166" node_type="writer">Relations entre les modèles gérées facilement : SQLAlchemy facilite la gestion des relations entre les modèles de données. Par exemple, la relation entre les clients et leurs factures associées est établie à l'aide de la fonctionnalité relationship, ce qui permet une navigation aisée entre les différents éléments.</paragraph>
+ <paragraph index="167" node_type="writer">Gestion des sessions et des transactions pour assurer la cohérence des données : SQLAlchemy gère les sessions qui fournissent un contexte pour effectuer des opérations de base de données de manière cohérente. Les transactions sont utilisées pour garantir la cohérence des données et pour annuler les modifications en cas d'erreur.</paragraph>
+ <paragraph index="168" node_type="writer">Connexion à la base de données avec PyODBC : PyODBC est utilisé pour établir une connexion à la base de données SQL Server. La chaîne de connexion est construite à partir des variables d'environnement, ce qui permet une configuration flexible et sécurisée de la connexion.</paragraph>
+ <paragraph index="169" node_type="writer">Manipulation des données à l'aide de dictionnaires et de DataFrames : Des fonctions sont développées pour ajouter des données à la base de données à partir de dictionnaires de données. De plus, SQLAlchemy est utilisé pour récupérer des données de la base de données et les stocker dans des DataFrames pandas, ce qui facilite leur manipulation ultérieure.</paragraph>
+ <paragraph index="174" node_type="writer">Parlons de l’application QuickBooks</paragraph>
+ <paragraph index="176" node_type="writer">Critère de recherche :</paragraph>
+ <paragraph index="177" node_type="writer">Cette fonctionnalité permettra aux utilisateurs de rechercher des factures en fonction de différents critères, tels que la date, le nom du client, le nom de la facture, le produit et le statut de paiement.</paragraph>
+ <paragraph index="178" node_type="writer">Pour ce faire, des filtres de recherche seront intégrés dans l'application, permettant aux utilisateurs de spécifier les critères de recherche. L'application interagira ensuite avec la base de données de factures pour récupérer les résultats correspondants.</paragraph>
+ <paragraph index="179" node_type="writer">En plus de la recherche, une fonctionnalité de tri des résultats sera développée, offrant aux utilisateurs la possibilité de trier les factures par ordre chronologique ou selon d'autres critères pertinents.</paragraph>
+ <paragraph index="180" node_type="writer">Enfin, une attention particulière sera accordée à l'expérience utilisateur, avec des messages d'erreur clairs en cas de recherche infructueuse et des guides pour aider les utilisateurs tout au long du processus de recherche de factures.</paragraph>
+ <paragraph index="181" node_type="writer">Une fonctionnalité supplémentaire consistera en l'ajout d'un bouton permettant de vérifier la présence de nouvelles factures et de les intégrer à la base de données si nécessaire.</paragraph>
+ <paragraph index="182" node_type="writer">Ce bouton déclenchera une requête vers un service externe ou un système de gestion des factures pour récupérer les nouvelles données. Ensuite, l'application comparera les nouvelles factures avec celles déjà présentes dans la base de données. Si des factures supplémentaires sont identifiées, elles seront ajoutées à la base de données existante.</paragraph>
+ <paragraph index="183" node_type="writer">
+</paragraph>
+ <paragraph index="190" node_type="writer">Visibilité et modifications des factures : </paragraph>
+ <paragraph index="191" node_type="writer">Une fonctionnalité de mise à jour des factures est également implémentée, permettant aux utilisateurs de modifier les détails des factures existantes selon leurs besoins. Cette fonctionnalité recupére les factures sous forme de carte recto/verso</paragraph>
+ <paragraph index="192" node_type="writer">Au recto, nous avons les informations importantes de la factures, comme le nom de la facture, les informations du client. </paragraph>
+ <paragraph index="193" node_type="writer">Au verso, nous avons la liste des produits de la factures enregistrés avec leur quantité et leur prix unitaire. 
+</paragraph>
+ <paragraph index="195" node_type="writer">Analyses marketing: </paragraph>
+ <paragraph index="197" node_type="writer">Dans l'application QuickBooks, il existe une page dédiée aux analyses des ventes, offrant aux utilisateurs une vue détaillée des performances de l'entreprise à travers divers graphiques et tableaux. Voici une description de la page d'analyses :</paragraph>
+ <paragraph index="198" node_type="writer">Revenus par année</paragraph>
+ <paragraph index="199" node_type="writer">Cette section présente un graphique illustrant les revenus générés par l'entreprise au cours des différentes années. Les utilisateurs peuvent visualiser les tendances de revenus sur une base annuelle, ce qui leur permet de mieux comprendre l'évolution des performances de l'entreprise dans le temps.</paragraph>
+ <paragraph index="201" node_type="writer">Analyses des clients</paragraph>
+ <paragraph index="202" node_type="writer">Dans cette section, les utilisateurs ont accès à plusieurs graphiques fournissant des analyses détaillées sur les clients de l'entreprise. Cela inclut un graphique montrant les revenus générés par chaque client, ainsi que des graphiques en camembert présentant les dix meilleurs et les dix pires clients en termes de revenus. Ces informations permettent aux utilisateurs d'identifier les clients les plus rentables et ceux qui nécessitent une attention particulière.</paragraph>
+ <paragraph index="215" node_type="writer">Analyses des produits</paragraph>
+ <paragraph index="216" node_type="writer">Cette section offre une analyse approfondie des produits vendus par l'entreprise. Les utilisateurs peuvent consulter des graphiques présentant les dix produits les plus rentables et les dix produits les moins rentables en termes de revenus. Cela permet de mettre en évidence les produits les plus populaires ainsi que ceux qui pourraient nécessiter des ajustements ou une attention particulière.</paragraph>
+ <paragraph index="218" node_type="writer">En fournissant ces analyses détaillées, la page d'analyses des ventes aide les utilisateurs à prendre des décisions éclairées pour optimiser les performances de leur entreprise et à identifier les opportunités de croissance.</paragraph>
+ <paragraph index="219" node_type="writer">
+</paragraph>
+</indexing>

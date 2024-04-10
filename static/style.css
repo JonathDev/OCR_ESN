@@ -1,51 +1,86 @@
-/* S'assure que la carte est configurée pour une perspective 3D */
-.carte {
-    perspective: 1000px;
+body {background: #F5F6FA; font-family: "Trebuchet MS", sans-serif; font-weight: bold; color: #858AA6; font-size: 20px;}
+
+.flip-card-3D-wrapper {
+  width: 100%;
+  height: 80%;
+  max-width: 250px; 
+  perspective: 800px;
+  margin: 5px auto;
+
+}
+.card-title{
+    font-size: 1.5rem;
+}
+.card-text, .list-group-item {
+    font-size: 1rem; 
+    margin: 2px;
 }
 
-.couche {
-    transition: transform 0.5s;
-    transform-style: preserve-3d;
-    position: relative;
+
+.flip-card {
+  height: 100%;
+  transition: all 1s ease-in-out;
+  transform-style: preserve-3d;
+  height: 900px;
 }
 
-.flipped .recto {
-    transform: rotateY(180deg);
+.flip-card img{
+  display: block;
+  transform: scale(0.9);
+  width: 100%;
+  height: 90%;
+  object-fit: cover;
 }
 
-.flipped .verso {
-    transform: rotateY(0deg);
+
+.do-flip {transform: rotateY(-180deg);}
+
+.flip-card-btn-turn-to-back, .flip-card-btn-turn-to-front {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;  
+  visibility: visible;
+  border-radius: 10px;
 }
 
-.recto, .verso {
-    backface-visibility: hidden;
-    position: relative;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.flip-card-btn-turn-to-back{
+    border: rgb(141, 134, 134);
+    background: rgb(88, 85, 85);
+    color: #e8eaeb;
 }
 
-.verso {
-    transform: rotateY(180deg);
+.flip-card-btn-turn-to-front  {
+   border:  rgb(141, 134, 134);
+   background: rgb(88, 85, 85);
+   color: #e8eaeb;
 }
 
-.carte.flipped .recto {
-    transform: rotateY(180deg);
-}
-.carte.flipped .verso {
-    transform: rotateY(0deg);
-}
-
-.carte_visite_recto_verso, .carte {
-    /* Assurez-vous que ces conteneurs sont suffisamment grands pour contenir le recto et le verso */
-    width: 100%; /* ou une largeur spécifique si nécessaire */
-    min-height: 420px; /* ou la hauteur nécessaire pour contenir le contenu des cartes */
-    position: relative; /* Important pour contenir absolument des éléments positionnés à l'intérieur */
-    margin-bottom: 20px; /* Espacement entre les cartes si nécessaire */
+.flip-card-front, .flip-card-back {
+  height: 100%;
+  position: absolute;
+  backface-visibility: hidden;
+  z-index: 2;
+  border-radius: 5px;
+  border:2px solid #06b6ec;
 }
 
-.card {
-    height: auto; /* S'assure que la hauteur s'ajuste au contenu */
-    overflow: hidden; /* Empêche le contenu de déborder */
+.flip-card-front {background: #b7dbe6;}
+.flip-card-back {background: white;transform: rotateY(180deg);}
+.flip-card-front {color: white;}
+.flip-card-back h4 {color: #121313}
+
+
+.navbar {
+    background-color: #343a40;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.navbar-nav .nav-link {
+    color: #fff;
+}
+.verify{
+    margin-top: 20px;
 }

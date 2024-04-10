@@ -1,12 +1,17 @@
 from fastapi import FastAPI, HTTPException, Request, Form, Query
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from sqlalchimie_module import get_db, Customer, Invoice, paginate_results, search_invoices
-#FAC_2019_0002
+from analyses import bottom_revenue_products, camenber_bottom10_customer, camenber_top10_customer, generate_customer_revenue_chart, generate_revenue_chart, top_revenue_products
+from fonctionalité import verif_invoice_and_add
+from sqlalchimie_module import get_db, Customer, Invoice, paginate_results, search_invoices, update_invoice
+from pydantic import BaseModel, ValidationError
+
 app = FastAPI()
+
+
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -47,8 +52,8 @@ async def search_results(
 ):
     try:
         factures = search_invoices(start_date, end_date, name_customer, number_invoice, name_product, paid)
-        print(len(factures))
-        print(factures)
+        #print(len(factures))
+        #print(factures)
         page_results, total_pages = paginate_results(factures, page, limit)
 
     except ValueError:
@@ -74,3 +79,58 @@ async def search_results(
         "limit": limit, 
         "total_pages": total_pages
     })
+
+
+# Définition du modèle de données
+class InvoiceUpdate(BaseModel):
+    customer_name: Optional[str]
+    adresse_customer: Optional[str]
+    category: Optional[str]
+    total_price: Optional[float]
+    paid: Optional[bool]
+    products: Optional[List[dict]] = None
+
+@app.put("/search/{invoice_number}/", response_class=JSONResponse)
+async def api_update_invoice(invoice_number: str, update_data: InvoiceUpdate):
+    try:
+        # Affichage pour le débogage
+        print(f"Invoice number: {invoice_number}")
+        print(f"Update data: {update_data}")
+
+        # Conversion des données Pydantic en dict en excluant les champs non définis
+        update_data_dict = update_data.dict(exclude_none=True)
+        print(f"Data for update: {update_data_dict}")
+
+        # Mise à jour de la facture avec les données validées
+        update_invoice(invoice_number, **update_data_dict)
+
+        # Réponse en cas de succès
+        return {"message": "Facture mise à jour avec succès."}
+    except Exception as e:
+        # Log de l'erreur pour le débogage
+        print(f"Erreur lors de la mise à jour de la facture : {e}")
+        # Réponse en cas d'erreur inattendue
+        return JSONResponse(status_code=500, content={"detail": f"Erreur lors de la mise à jour de la facture : {e}"})
+    
+@app.post("/search/verify_invoices", response_class=HTMLResponse)
+async def verify_invoices(request: Request):
+    try:
+        problematic_invoices = verif_invoice_and_add()
+        # Traitez les factures problématiques ici si nécessaire
+        return RedirectResponse(url="/search/")  # Redirigez l'utilisateur vers la page de recherche
+    except Exception as e:
+        return templates.TemplateResponse("error.html", {"message": f"Erreur lors de la vérification des factures : {e}"})
+
+    
+@app.get("/analyses/", response_class=HTMLResponse)
+async def show_analyses(request: Request):
+    # Générer tous les graphiques
+    generate_revenue_chart()
+    camenber_top10_customer()
+    generate_customer_revenue_chart()
+    top_revenue_products()
+    bottom_revenue_products()
+    camenber_bottom10_customer()
+
+    # Rendre le template en passant la request
+    return templates.TemplateResponse("analyses.html", {"request": request})

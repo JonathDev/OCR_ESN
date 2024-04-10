@@ -94,4 +94,3 @@ def find_full_name_or_id(simplified_name, list_2_full_names):
         if simplified_name in full_name:
             return full_name
     return None
-verif_invoice_and_add()

@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError  # Import specific SQLAlchemy excepti
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.orm import Session
-
+import pandas as pd
 from contextlib import contextmanager
 from dotenv import load_dotenv
 import os
@@ -101,7 +101,7 @@ class Invoice(Base):
     number_invoice = Column(String(50), primary_key=True)
     date_invoice = Column(Date)
     cust_id = Column(Integer, ForeignKey('Billing.Customer.cust_id'))
-    total_price = Column(Numeric)
+    total_price = Column(Numeric(10, 2))
     invoice_link = Column(String)
     # Ajout de la nouvelle colonne pour le statut de paiement
     paid = Column(Boolean, default=False)
@@ -181,7 +181,8 @@ def add_customer_from_dict(session, customer_dict):
             session.close()
     
 
-
+def adjust_decimal(value):
+    return value.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
 def add_invoice_from_dict(session, invoice_dict, cust_id):
     # vérification si la facture existe
@@ -192,7 +193,9 @@ def add_invoice_from_dict(session, invoice_dict, cust_id):
         return  # Sortie anticipée de la fonction
 
     # Convertir la chaîne de prix total en un nombre décimal
-    total_price = float(invoice_dict['total_price'])
+    
+    adjusted_total_price = adjust_decimal(invoice_dict['total_price'])
+
     # Convertir la chaîne de date en un objet datetime
     invoice_date = datetime.strptime(invoice_dict['date'], '%Y-%m-%d %H:%M:%S').date()
 
@@ -200,7 +203,7 @@ def add_invoice_from_dict(session, invoice_dict, cust_id):
         number_invoice=invoice_dict['invoice_number'],
         date_invoice=invoice_date,
         cust_id=cust_id,
-        total_price=total_price,
+        total_price=adjusted_total_price,
         invoice_link=invoice_dict['url']
     )
     session.add(new_invoice)
@@ -216,8 +219,7 @@ def add_invoice_from_dict(session, invoice_dict, cust_id):
 
 
 
-def adjust_decimal(value):
-    return value.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+
 
 
 def add_product(session, product_dict):
@@ -393,82 +395,6 @@ def get_db():
 
 
 
-"""
-
-def search_invoices(start_date=None, end_date=None, customer_name=None, number_invoice=None, name_product=None):
-    try:
-        # Établissement de la session
-        engine = create_engine_with_connection_string()
-        Session = sessionmaker(bind=engine)
-        session = Session()
-
-        # Construction initiale de la requête
-        query = session.query(
-            Invoice.number_invoice,
-            Invoice.date_invoice,
-            Invoice.invoice_link,
-            Customer.name_customer,
-            Customer.cat,
-            Invoice.total_price,
-            Product.name_product,
-            Orders.quantity,
-            Product.unit_price
-        ).join(Customer, Invoice.cust_id == Customer.cust_id
-        ).join(Orders, Orders.number_invoice == Invoice.number_invoice
-        ).join(Product, Product.productID == Orders.productID)
-
-        # Ajout de filtres basés sur les paramètres fournis
-        if start_date and end_date:
-            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
-            query = query.filter(Invoice.date_invoice.between(start_date_obj, end_date_obj))
-        
-        if customer_name:
-            query = query.filter(Customer.name_customer == customer_name)
-        
-        if number_invoice:
-            query = query.filter(Invoice.number_invoice == number_invoice)
-        
-        if name_product:
-            query = query.filter(Product.name_product == name_product)
-
-        # Exécution de la requête
-        invoices = query.all()
-
-        # Fermeture de la session
-        session.close()
-
-        # Traitement des résultats pour regrouper par facture avec détails des produits
-        invoices_info = {}
-        for invoice in invoices:
-            invoice_key = invoice[0]  # Numéro de la facture
-            if invoice_key not in invoices_info:
-                invoices_info[invoice_key] = {
-                    'invoice_number': invoice_key,
-                    'date_invoice': invoice[1],
-                    'invoice_link': invoice[2],  # Ici tu récupères correctement invoice_link
-                    'customer_name': invoice[3],  # Assigne le bon index pour customer_name
-                    'category': invoice[4],
-                    'total_price': invoice[5],
-                    'products': []  # Liste pour stocker les détails des produits
-                }
-            
-            # Ajout de chaque produit dans la liste des produits de la facture correspondante
-            invoices_info[invoice_key]['products'].append({
-                'product_name': invoice[6],
-                'quantity': invoice[7],
-                'unit_price': invoice[8]
-            })
-
-        # Préparation de la sortie en liste de dictionnaires, un par facture
-        output = list(invoices_info.values())
-        return output
-    except Exception as e:
-        print(f"Erreur lors de la recherche des factures : {e}")
-        return []
-
-"""
-
 def search_invoices(start_date=None, end_date=None, customer_name=None, number_invoice=None, name_product=None, paid=None):
     try:
         # Établissement de la session
@@ -487,7 +413,8 @@ def search_invoices(start_date=None, end_date=None, customer_name=None, number_i
             Product.name_product,
             Orders.quantity,
             Product.unit_price,
-            Invoice.paid  # Maintient du statut de paiement
+            Invoice.paid,# Maintient du statut de paiement
+            Customer.adresse_customer
         ).join(Customer, Invoice.cust_id == Customer.cust_id
         ).join(Orders, Orders.number_invoice == Invoice.number_invoice
         ).join(Product, Product.productID == Orders.productID)
@@ -536,6 +463,7 @@ def search_invoices(start_date=None, end_date=None, customer_name=None, number_i
                     'category': invoice[4],
                     'total_price': invoice[5],
                     'paid': invoice[9],  # Inclut l'information de paiement
+                    'adresse_customer': invoice[10], 
                     'products': []  # Liste pour stocker les détails des produits
                 }
             
@@ -564,3 +492,117 @@ def paginate_results(results, page=1, limit=10):
 
 #test = sort_data('https://invoiceocrp3.azurewebsites.net/static/FAC_2019_0001-112650.png')
 #print(test)
+
+def clear_database():
+    # Testez la connexion avant de procéder
+    if not test_connect():
+        print("La connexion a échoué. Vérifiez les informations de connexion.")
+        return
+
+    # Créez l'engine si la connexion est réussie
+    engine = create_engine_with_connection_string()
+    Session = sessionmaker(bind=engine)
+
+    with Session() as session:
+        delete_all_data(session)
+
+#clear_database()
+
+def update_invoice(invoice_number, customer_name=None, adresse_customer=None, category=None, total_price=None, paid=None, products=None):
+    try:
+        # Établissement de la session
+        engine = create_engine_with_connection_string()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        
+        # Recherche de la facture à mettre à jour
+        invoice = session.query(Invoice).filter_by(number_invoice=invoice_number).first()
+        if invoice is None:
+            print(f"Facture {invoice_number} introuvable.")
+            return
+        
+        # Mise à jour des informations de la facture
+        invoice.customer.name_customer = customer_name if customer_name else invoice.customer.name_customer
+        invoice.customer.adresse_customer = adresse_customer if adresse_customer else invoice.customer.adresse_customer
+        invoice.customer.cat = category if category else invoice.customer.cat
+        invoice.total_price = total_price if total_price else invoice.total_price
+        invoice.paid = paid if paid is not None else invoice.paid
+
+        # Mise à jour des produits associés, si spécifié
+        if products:
+            for product_info in products:
+                product = session.query(Product).filter_by(productID=product_info.get('productID')).first()
+                if product:
+                    # Mettre à jour les détails du produit existant si nécessaire
+                    product.name_product = product_info.get('name_product', product.name_product)
+                    product.unit_price = product_info.get('unit_price', product.unit_price)
+                    # Trouver ou créer l'association commande-produit
+                    order = session.query(Orders).filter_by(productID=product.productID, number_invoice=invoice.number_invoice).first()
+                    if order:
+                        order.quantity = product_info.get('quantity', order.quantity)
+                    else:
+                        # Création d'un nouvel ordre si non trouvé
+                        new_order = Orders(number_invoice=invoice.number_invoice, productID=product.productID, quantity=product_info.get('quantity'))
+                        session.add(new_order)
+                else:
+                    # Création d'un nouveau produit et d'un nouvel ordre si le produit n'existe pas
+                    new_product = Product(productID=product_info.get('productID'), name_product=product_info.get('name_product'), unit_price=product_info.get('unit_price'))
+                    session.add(new_product)
+                    new_order = Orders(number_invoice=invoice.number_invoice, productID=new_product.productID, quantity=product_info.get('quantity'))
+                    session.add(new_order)
+
+        session.commit()
+        print(f"Facture {invoice_number} mise à jour avec succès.")
+    except Exception as e:
+        session.rollback()
+        print(f"Erreur lors de la mise à jour de la facture : {e}")
+
+
+def fetch_invoices_data_as_dataframe():
+    engine = create_engine_with_connection_string()
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    # Requête pour récupérer les données nécessaires
+    invoices_query = session.query(
+        Invoice.number_invoice,
+        Invoice.date_invoice,
+        Invoice.total_price,
+        Invoice.paid,
+        Customer.name_customer,
+        Customer.cat,
+        Product.name_product,
+        Orders.quantity,
+        Product.unit_price
+    ).join(Customer, Invoice.cust_id == Customer.cust_id
+    ).join(Orders, Orders.number_invoice == Invoice.number_invoice
+    ).join(Product, Orders.productID == Product.productID
+    ).all()
+
+    # Préparation des données pour le DataFrame
+    data = []
+    for invoice in invoices_query:
+        row = {
+            'number_invoice': invoice.number_invoice,
+            'date_invoice': invoice.date_invoice,
+            'total_price': invoice.total_price,
+            'paid': invoice.paid,
+            'name_customer': invoice.name_customer,
+            'cat': invoice.cat,
+            'product_name': invoice.name_product,
+            'quantity': invoice.quantity,
+            'unit_price': invoice.unit_price
+        }
+        data.append(row)
+
+    # Création du DataFrame
+    df = pd.DataFrame(data)
+
+    # Optionnellement, ajuster le format de la colonne de date et le type de la colonne paid
+    df['date_invoice'] = pd.to_datetime(df['date_invoice'])
+    df['paid'] = df['paid'].astype(bool)
+
+    session.close()
+    print(df)
+    return df
+

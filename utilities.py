@@ -3,6 +3,15 @@ from QRcode_module import recup_info_data_qrcode
 from ocr_module import recup_data_feature
 from decimal import Decimal
 import re 
+from decimal import Decimal, ROUND_HALF_UP
+
+
+
+# Exemple de conversion de float en Decimal et utilisation de .quantize
+def adjust_decimal(value):
+    # Assurez-vous que la valeur est un Decimal avant de quantifier
+    adjusted_value = Decimal(value).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+    return adjusted_value
 
 
     
@@ -33,7 +42,7 @@ def processing_data_invoices(url):
     # Ajouter le dernier élément de `analyses` à `text` car il est manqué par la boucle
     text += analyses[-1]['text']
     phrases.append(text)  # Ajouter la dernière phrase compilée à `phrases`
-
+    #print(phrases)
     return phrases
 
 
@@ -41,8 +50,8 @@ def processing_data_invoices(url):
 def processing_qrcode_invoices(url):
 
     resultat =  recup_info_data_qrcode(url)
-    print(resultat)
     return resultat
+
 
 
 
@@ -55,7 +64,7 @@ def sort_data(url):
     pattern_adress = r"(?i)^Address\s+(.+)$" 
     #pattern_date_invoice = r"Issue date\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})"
     sentences = processing_data_invoices(url)
-    #print(sentences)
+    #print(f"dans ma facontion {sentences}")
     infoqcode = processing_qrcode_invoices(url)
     #print(infoqcode)
     for i, sentence in enumerate(sentences):
@@ -68,6 +77,8 @@ def sort_data(url):
         elif re.match(pattern_total_price, sentence): 
             total_price_modify = sentence
             total_price = total_price_modify.replace("TOTAL", "").replace("Euro", "").strip()
+            #print(f"verificationde total_price {total_price}")
+            total_price = adjust_decimal(total_price)
 
 
             #print(total_price)
@@ -86,7 +97,7 @@ def sort_data(url):
             info_product[f'produit{i}'] = {
                 'name_product': product_name,
                 'quantity': int(quantity),
-                "unit_price": float(unit_price)
+                "unit_price": adjust_decimal(unit_price)
             }
             #modif_cusomer_id = int(infoqcode.get('CUSTUMER_ID', ''))
      
@@ -101,7 +112,7 @@ def sort_data(url):
         'customer_id': int(infoqcode.get('CUST', '')),
         'category': infoqcode.get('CAT', ''),
     }
+    #print (f" verification des donnée de data_ sort {invoice_info}")
     return invoice_info
-
 
 
