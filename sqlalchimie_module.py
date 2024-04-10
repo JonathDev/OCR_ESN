@@ -32,6 +32,7 @@ ADMIUSER = os.getenv('ADMIUSER')
 DATABASE = os.getenv('DATABASE')
 PASSWORD = os.getenv('PASSWORD')
 DRIVER = os.getenv('DRIVER')
+CONNECTION = os.getenv('CONNECTION') 
 
 conn_str = (
     f"Driver={DRIVER};"
@@ -123,7 +124,7 @@ class Orders(Base):
 
 def create_engine_with_connection_string():
     # Votre chaîne de connexion ODBC
-    connection_string = "Driver={ODBC Driver 18 for SQL Server};Server=tcp:ocr-serveur-jonathan.database.windows.net;Database=db-ocr-jonathan;Uid=ocrjonathan;Pwd=2Alariszera!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+    connection_string = CONNECTION
 
     # Création de l'URL de connexion
     connection_url = URL.create(
@@ -137,7 +138,7 @@ def create_engine_with_connection_string():
 
 def create_schema_and_tables():
     # Votre chaîne de connexion ODBC
-    connection_string = "Driver={ODBC Driver 18 for SQL Server};Server=tcp:ocr-serveur-jonathan.database.windows.net;Database=db-ocr-jonathan;Uid=ocrjonathan;Pwd=2Alariszera!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+    connection_string = CONNECTION
 
 # Création de l'URL de connexion
     connection_url = URL.create(
